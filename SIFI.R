@@ -4,7 +4,7 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time,
                  direction = c("best","worst"),  # Use the best responder or the worst responder
                  cols = c("#0754A0","#F12A29"), stat_test = c("logrank","coxph"),
                  agnostic = F,   # Agnostic determination of experimental vs reference group (based on the lower HR)
-                 plot_iteration = F, file_iteration = NULL){
+                 plot_iteration = F, file_iteration = NA){
   
   require(dplyr)
   require(survival)
@@ -178,7 +178,7 @@ neg_sifi <- function(sv_data1, treatment_arm = NULL,  # 'sv_data1' should be (1)
                  cols = c("#0754A0","#F12A29"),
                  stat_test = c("logrank","coxph"),
                  agnostic = F,   # Agnostic determination of experimental vs reference group (based on the lower HR)
-                 plot_iteration = F, file_iteration = NULL){
+                 plot_iteration = F, file_iteration = NA){
   
   require(dplyr)
   require(survival)
