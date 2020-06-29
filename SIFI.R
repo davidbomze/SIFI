@@ -1,3 +1,7 @@
+# We can use the 'myeloid' dataset from the 'survival' data
+sifi(myeloid[, c("futime","death","trt")], plot_iteration = T, file_iteration = "myeloid_sifi.pdf")
+
+
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time, (2) event, (3) arm
                  operation = c("flip","clone"),  # Flip or clone the best/worst responder
@@ -22,7 +26,7 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time,
   count <- 0 ; flag <- T
   
   # If the treatment arm wasn't defined or we use the agnostic approach,
-  # we assign the group that shows some benefit (HR < 1)
+  # we assign the group that shows benefit (HR < 1) as the experimental group regardless of signifiance
   if((length(treatment_arm) == 0) | agnostic){
     sv_cox <- coxph(Surv(time, event, type = "right") ~ arm, data = sv_data)
     treatment_arm <- ifelse(sv_cox$coefficients < 0, yes = levels(sv_data$arm)[2], no = levels(sv_data$arm)[1])
@@ -196,7 +200,7 @@ neg_sifi <- function(sv_data1, treatment_arm = NULL,  # 'sv_data1' should be (1)
   count <- 0 ; flag <- T
   
   # If the treatment arm wasn't defined or we use the agnostic approach,
-  # we assign the group that shows some benefit (HR < 1)
+  # we assign the group that shows benefit (HR < 1) as the experimental group regardless of signifiance
   if((length(treatment_arm) == 0) | agnostic){
     sv_cox <- coxph(Surv(time, event, type = "right") ~ arm, data = sv_data1)
     treatment_arm <- ifelse(sv_cox$coefficients < 0, yes = levels(sv_data1$arm)[2], no = levels(sv_data1$arm)[1])
