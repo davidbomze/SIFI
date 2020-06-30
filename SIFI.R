@@ -1,11 +1,12 @@
 # We can use the 'myeloid' dataset from the 'survival' package
 if(F){
   sifi(myeloid[, c("futime","death","trt")], plot_iteration = T, file_iteration = "myeloid_sifi.pdf")
-# And the 'retinopathy' dataset also from the 'survival' package
-sifi(retinopathy[ , c("futime","status","laser")], treatment_arm = "argon", plot_iteration = T, file_iteration = "retinopathy_argon.pdf")
-sifi(retinopathy[ , c("futime","status","laser")], treatment_arm = "xenon", plot_iteration = T, file_iteration = "retinopathy_xenon.pdf")
-sifi(retinopathy[ , c("futime","status","laser")], plot_iteration = T, file_iteration = "retinopathy_agnostic.pdf")
-  }
+  sifi_all(myeloid[ , c("futime","death","trt")], plot_iteration = T, file_prefix = "myeloid_sifi")
+  # And the 'retinopathy' dataset also from the 'survival' package
+  sifi(retinopathy[ , c("futime","status","laser")], treatment_arm = "argon", plot_iteration = T, file_iteration = "retinopathy_sifi_argon.pdf")
+  sifi(retinopathy[ , c("futime","status","laser")], treatment_arm = "xenon", plot_iteration = T, file_iteration = "retinopathy_sifi_xenon.pdf")
+  sifi(retinopathy[ , c("futime","status","laser")], plot_iteration = T, file_iteration = "retinopathy_sifi_agnostic.pdf")
+}
 
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -48,7 +49,10 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time,
   #@@@@@@@@@@
   
   # Plot the iteration to PDF if we have filename, otherwise to Viewer
-  if(plot_iteration & !is.na(file_iteration)) cairo_pdf(file_iteration, width = 11.69, height = 8.27, onefile = T)
+  if(plot_iteration & !is.na(file_iteration)){
+    cairo_pdf(file_iteration, width = 11.69, height = 8.27, onefile = T)
+    par(mfrow = c(3,4))
+  }
   
   # Initialize while loop
   while(flag){
@@ -89,8 +93,7 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time,
                        sprintf("%1.2f", hr[2]), ",", sprintf("%1.2f", hr[3]), ")")
       pval_lab <- ifelse(pval < 0.001, yes = "p < 0.001", no = paste0("p = ", sprintf("%1.3f", pval)))
       
-      par(mfrow = c(3,4))
-      plot(y, col = cols, lwd = 1.5,
+      plot(sft, col = cols, lwd = 1.5,
            xlab = "", ylab = "% Survival", cex.lab = 1.0,
            main = paste0("Iteration #", count,
                          "\n", hr_lab,
@@ -141,7 +144,7 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time,
     
     if(plot_iteration){
       # Calculate time of new responder
-      s <- summary(y, times = responder$time, extend = TRUE)  # Otherwise we get: 'Error in array(xx, dim = dd) : vector is too large'
+      s <- summary(sft, times = responder$time, extend = TRUE)  # Otherwise we get: 'Error in array(xx, dim = dd) : vector is too large'
       # 'sr' some responder, 'jd' just redesignated
       if(direction == "best"){
         sr <- c(responder$time, s$surv[paste0("arm=", treatment_arm) == s$strata])
@@ -222,7 +225,10 @@ neg_sifi <- function(sv_data1, treatment_arm = NULL,  # 'sv_data1' should be (1)
   #@@@@@@@@@@
   
   # Plot to PDF if we have filename, otherwise to viewer
-  if(plot_iteration & !is.na(file_iteration)) cairo_pdf(file_iteration, width = 11.69, height = 8.27, onefile = T)
+  if(plot_iteration & !is.na(file_iteration)){
+    cairo_pdf(file_iteration, width = 11.69, height = 8.27, onefile = T)
+    par(mfrow = c(3,4))
+  }
     
   # Initialize while loop
   while(flag){
@@ -250,8 +256,7 @@ neg_sifi <- function(sv_data1, treatment_arm = NULL,  # 'sv_data1' should be (1)
                        sprintf("%1.2f", hr[2]), ",", sprintf("%1.2f", hr[3]), ")")
       pval_lab <- ifelse(pval < 0.001, yes = "p < 0.001", no = paste0("p = ", sprintf("%1.3f", pval)))
       
-      par(mfrow = c(3,4))
-      plot(y, col = cols, lwd = 1.5,
+      plot(sft, col = cols, lwd = 1.5,
            xlab = "", ylab = "% Survival", cex.lab = 1.0,
            main = paste0("Iteration #", count,
                          "\n", hr_lab,
@@ -305,7 +310,7 @@ neg_sifi <- function(sv_data1, treatment_arm = NULL,  # 'sv_data1' should be (1)
     
     if(plot_iteration){
       # Calculate time of new responder
-      s <- summary(y, times = responder$time, extend = TRUE)  # Otherwise we get: 'Error in array(xx, dim = dd) : vector is too large'
+      s <- summary(sft, times = responder$time, extend = TRUE)  # Otherwise we get: 'Error in array(xx, dim = dd) : vector is too large'
       # 'sr' some responder, 'jd' just redesignated
       if(direction == "best"){
         sr <- c(responder$time, s$surv[paste0("arm=", control_arm) == s$strata])  # mirror of positive SIFI
@@ -377,11 +382,11 @@ sifi_all <- function(sv_data2, treatment_arm = NULL,  # 'sv_data2' should be (1)
   for(op in c("flip","clone")){
     for(dr in c("best","worst")){
       mega_sifi[paste0(op, "_", dr)] <- sifi(sv_data = sv_data2, treatment_arm = treatment_arm,
-                                             direction = dr, operation = op
+                                             direction = dr, operation = op,
                                              cols = cols, stat_test = stat_test,
                                              agnostic = agnostic,   # Agnostic determination of experimental vs reference group (based on the lower HR)
                                              plot_iteration = plot_iteration,
-                                             file_iteration = ifelse(plot_iteration, yes = paste0(file_prefix, "strategy", strtgy, "_", paste0(op, "_", dr), ".pdf"), no = NA))
+                                             file_iteration = ifelse(plot_iteration, yes = paste0(file_prefix, "_strategy", strtgy, "_", paste0(op, "_", dr), ".pdf"), no = NA))
       strtgy <- strtgy + 1
     }
   }
