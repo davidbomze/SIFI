@@ -1,4 +1,4 @@
-# We can use the 'myeloid' dataset from the 'survival' package
+# We can use the 'myeloid' and 'retinopathy' dataset from the 'survival' package
 if(F){
   sifi(myeloid[, c("futime","death","trt")], plot_iteration = T, file_iteration = "myeloid_sifi.pdf")
   sifi_all(myeloid[ , c("futime","death","trt")], plot_iteration = T, file_prefix = "myeloid_sifi")
@@ -6,6 +6,7 @@ if(F){
   sifi(retinopathy[ , c("futime","status","laser")], treatment_arm = "argon", plot_iteration = T, file_iteration = "retinopathy_sifi_argon.pdf")
   sifi(retinopathy[ , c("futime","status","laser")], treatment_arm = "xenon", plot_iteration = T, file_iteration = "retinopathy_sifi_xenon.pdf")
   sifi(retinopathy[ , c("futime","status","laser")], plot_iteration = T, file_iteration = "retinopathy_sifi_agnostic.pdf")
+  sifi_all(retinopathy[ , c("futime","status","laser")], plot_iteration = T, file_prefix = "retinopathy_sifi")
 }
 
 
@@ -73,7 +74,7 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time,
     # calculate the negative SIFI, i.e. try to get it from non-significant to significant
     if(count == 0 & pval > 0.05){
       # Dump parameters in the same order
-      count_neg <- neg_sifi(sv_data = sv_data, treatment_arm,
+      count_neg <- neg_sifi(sv_data = sv_data[ , 1:3], treatment_arm,
                             operation, direction,
                             cols = cols, stat_test,
                             agnostic,
