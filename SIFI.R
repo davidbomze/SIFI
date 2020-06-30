@@ -73,7 +73,7 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time,
     # calculate the negative SIFI, i.e. try to get it from non-significant to significant
     if(count == 0 & pval > 0.05){
       # Dump parameters in the same order
-      count_neg <- neg_sifi(sv_data1 = sv_data[ , 1:3], treatment_arm,
+      count_neg <- neg_sifi(sv_data = sv_data, treatment_arm,
                             operation, direction,
                             cols = cols, stat_test,
                             agnostic,
@@ -185,7 +185,7 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time,
 }
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-neg_sifi <- function(sv_data1, treatment_arm = NULL,  # 'sv_data1' should be (1) time, (2) event, (3) arm
+neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time, (2) event, (3) arm
                      operation = c("flip","clone"),  # Flip or clone the best/worst responder
                      direction = c("best","worst"),  # Use the best responder or the worst responder
                      cols = c("#0754A0","#F12A29"),
@@ -203,20 +203,20 @@ neg_sifi <- function(sv_data1, treatment_arm = NULL,  # 'sv_data1' should be (1)
   stat_test <- match.arg(stat_test)
   
   # Prepare data
-  names(sv_data1) <- c("time","event","arm")
-  sv_data1$arm <- as.factor(sv_data1$arm)
-  sv_data1$id <- 1:nrow(sv_data1)
+  names(sv_data) <- c("time","event","arm")
+  sv_data$arm <- as.factor(sv_data$arm)
+  sv_data$id <- 1:nrow(sv_data)
   count <- 0 ; flag <- T
   
   # If the treatment arm wasn't defined or we use the agnostic approach,
   # we assign the group that shows benefit (HR < 1) as the experimental group regardless of signifiance
   if((length(treatment_arm) == 0) | agnostic){
-    sv_cox <- coxph(Surv(time, event, type = "right") ~ arm, data = sv_data1)
-    treatment_arm <- ifelse(sv_cox$coefficients < 0, yes = levels(sv_data1$arm)[2], no = levels(sv_data1$arm)[1])
+    sv_cox <- coxph(Surv(time, event, type = "right") ~ arm, data = sv_data)
+    treatment_arm <- ifelse(sv_cox$coefficients < 0, yes = levels(sv_data$arm)[2], no = levels(sv_data$arm)[1])
   }
   
   # Original count
-  n_arms <- table(sv_data1$arm)
+  n_arms <- table(sv_data$arm)
   
   #@@@@@@@@@@ WE NOW HAVE 4 OPTIONS (2x2)
   # 1) Re-designate the best responder  (longest time)  from experimental to control group
@@ -235,20 +235,20 @@ neg_sifi <- function(sv_data1, treatment_arm = NULL,  # 'sv_data1' should be (1)
     
     # Option A: Calculate log-rank
     if(stat_test == "logrank"){
-      sdf <- survdiff(Surv(time, event, type = "right") ~ arm, data = sv_data1)
+      sdf <- survdiff(Surv(time, event, type = "right") ~ arm, data = sv_data)
       pval <- 1 - pchisq(sdf$chisq, length(sdf$n) - 1)  # Log-rank p-value directly from survdiff
     }
     
     # Option B: calculate the COXPH p-value
     if(stat_test == "coxph"){
-      cxp <- coxph(Surv(time, event, type = "right") ~ arm, data = sv_data1)
+      cxp <- coxph(Surv(time, event, type = "right") ~ arm, data = sv_data)
       pval <- summary(cxp)$coefficients[5]
     }
     
     if(plot_iteration){
       # Build survival model, run COXPH, and calculate HR
-      sft <- survfit(Surv(time = time, event = event, type = "right") ~ arm, data = sv_data1)
-      cxp <- coxph(Surv(time = time, event = event, type = "right") ~ arm, data = sv_data1)
+      sft <- survfit(Surv(time = time, event = event, type = "right") ~ arm, data = sv_data)
+      cxp <- coxph(Surv(time = time, event = event, type = "right") ~ arm, data = sv_data)
       hr <- summary(cxp)$conf.int[c(1,3,4)]
       
       # Create labels
@@ -299,14 +299,14 @@ neg_sifi <- function(sv_data1, treatment_arm = NULL,  # 'sv_data1' should be (1)
     }
     
     # WE NOW DO THE SAME APPROACH as positive SIFI, but in a mirror way
-    control_arm <- setdiff(levels(sv_data1$arm) , treatment_arm)
+    control_arm <- setdiff(levels(sv_data$arm) , treatment_arm)
     
     # Two options:
     # (1) Re-designate BEST responder from the CONTROL to the EXPERIMENT group (i.e. the mirror of positive SIFI)
-    if(direction == "best") responder <- sv_data1 %>% filter(arm == control_arm) %>% arrange(time) %>% tail(1)
+    if(direction == "best") responder <- sv_data %>% filter(arm == control_arm) %>% arrange(time) %>% tail(1)
     
     # (2) Re-desginate WORST responder from the EXPERIMENTAL group to the CONTROL group (i.e. the mirror of positive SIFI)
-    if(direction == "worst") responder <- sv_data1 %>% filter(arm != control_arm) %>% arrange(time) %>% head(1)
+    if(direction == "worst") responder <- sv_data %>% filter(arm != control_arm) %>% arrange(time) %>% head(1)
     
     if(plot_iteration){
       # Calculate time of new responder
@@ -331,13 +331,13 @@ neg_sifi <- function(sv_data1, treatment_arm = NULL,  # 'sv_data1' should be (1)
     
     # Two options:
     # (3) Flip the responder from its original group to the other arm
-    if(operation == "flip") sv_data1[responder$id , "arm"] <- setdiff(levels(responder$arm) , responder$arm)
+    if(operation == "flip") sv_data[responder$id , "arm"] <- setdiff(levels(responder$arm) , responder$arm)
     
     # (4) Clone the responder and ADD it to the other arm
     if(operation == "clone"){
       responder$id <- paste0(responder$id,"_clone")  # Add a tag
       responder$arm <- setdiff(levels(responder$arm) , responder$arm)  # Change to the other arm
-      sv_data1 <- rbind(sv_data1, responder)  # Concatenate it to the original cohort
+      sv_data <- rbind(sv_data, responder)  # Concatenate it to the original cohort
     }
     
     #@@@@@@@@@@ KEEP IN MIND THAT IF WE CLONE A *CENSORED* INDIVIDUAL THE HR MAY NOT CHANGE AND WE WILL GET STUCK IN A LOOP
@@ -351,7 +351,7 @@ neg_sifi <- function(sv_data1, treatment_arm = NULL,  # 'sv_data1' should be (1)
 }
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-sifi_all <- function(sv_data2, treatment_arm = NULL,  # 'sv_data2' should be (1) time, (2) event, (3) arm
+sifi_all <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time, (2) event, (3) arm
                      cols = c("#0754A0","#F12A29"),
                      stat_test = c("logrank","coxph"),
                      agnostic = F,   # Agnostic determination of experimental vs reference group (based on the lower HR)
@@ -381,7 +381,7 @@ sifi_all <- function(sv_data2, treatment_arm = NULL,  # 'sv_data2' should be (1)
   # We run SIFI using the four different strategies
   for(op in c("flip","clone")){
     for(dr in c("best","worst")){
-      mega_sifi[paste0(op, "_", dr)] <- sifi(sv_data = sv_data2, treatment_arm = treatment_arm,
+      mega_sifi[paste0(op, "_", dr)] <- sifi(sv_data = sv_data, treatment_arm = treatment_arm,
                                              direction = dr, operation = op,
                                              cols = cols, stat_test = stat_test,
                                              agnostic = agnostic,   # Agnostic determination of experimental vs reference group (based on the lower HR)
