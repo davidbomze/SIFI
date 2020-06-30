@@ -343,9 +343,9 @@ neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) t
     
     #@@@@@@@@@@ KEEP IN MIND THAT IF WE CLONE A *CENSORED* INDIVIDUAL THE HR MAY NOT CHANGE AND WE WILL GET STUCK IN A LOOP
     #@@@@@@@@@@ THIS IS A SAFETY MECHANISM FOR THESE EXTREME CASES OR WHERE WE CAN'T REACH NON-SIGNIFICANCE...
-    if(abs(count) > min(n_arms)){
+    if(abs(count) > min(n_arms)){   # Absolute because 'count' is negative
       if(plot_iteration & !is.na(file_iteration)) dev.off()  # Shut down device we have a filename
-      return(NA)  # Absolute because 'count' is negative
+      return(NA)
     }
   }
   
