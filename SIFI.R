@@ -1,5 +1,11 @@
-# We can use the 'myeloid' dataset from the 'survival' data
-sifi(myeloid[, c("futime","death","trt")], plot_iteration = T, file_iteration = "myeloid_sifi.pdf")
+# We can use the 'myeloid' dataset from the 'survival' package
+if(F){
+  sifi(myeloid[, c("futime","death","trt")], plot_iteration = T, file_iteration = "myeloid_sifi.pdf")
+# And the 'retinopathy' dataset also from the 'survival' package
+sifi(retinopathy[ , c("futime","status","laser")], treatment_arm = "argon", plot_iteration = T, file_iteration = "retinopathy_argon.pdf")
+sifi(retinopathy[ , c("futime","status","laser")], treatment_arm = "xenon", plot_iteration = T, file_iteration = "retinopathy_xenon.pdf")
+sifi(retinopathy[ , c("futime","status","laser")], plot_iteration = T, file_iteration = "retinopathy_agnostic.pdf")
+  }
 
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -14,7 +20,7 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time,
   require(survival)
   require(stringi)
   
-  # Evaluate choices
+  # Evaluate input
   operation <- match.arg(operation)
   direction <- match.arg(direction)
   stat_test <- match.arg(stat_test)
@@ -177,18 +183,18 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time,
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 neg_sifi <- function(sv_data1, treatment_arm = NULL,  # 'sv_data1' should be (1) time, (2) event, (3) arm
-                 operation = c("flip","clone"),  # Flip or clone the best/worst responder
-                 direction = c("best","worst"),  # Use the best responder or the worst responder
-                 cols = c("#0754A0","#F12A29"),
-                 stat_test = c("logrank","coxph"),
-                 agnostic = F,   # Agnostic determination of experimental vs reference group (based on the lower HR)
-                 plot_iteration = F, file_iteration = NA){
+                     operation = c("flip","clone"),  # Flip or clone the best/worst responder
+                     direction = c("best","worst"),  # Use the best responder or the worst responder
+                     cols = c("#0754A0","#F12A29"),
+                     stat_test = c("logrank","coxph"),
+                     agnostic = F,   # Agnostic determination of experimental vs reference group (based on the lower HR)
+                     plot_iteration = F, file_iteration = NA){
   
   require(dplyr)
   require(survival)
   require(stringi)
   
-  # Evaluate choices
+  # Evaluate input
   operation <- match.arg(operation)
   direction <- match.arg(direction)
   stat_test <- match.arg(stat_test)
@@ -337,4 +343,48 @@ neg_sifi <- function(sv_data1, treatment_arm = NULL,  # 'sv_data1' should be (1)
     }
   }
   
+}
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+sifi_all <- function(sv_data2, treatment_arm = NULL,  # 'sv_data2' should be (1) time, (2) event, (3) arm
+                     cols = c("#0754A0","#F12A29"),
+                     stat_test = c("logrank","coxph"),
+                     agnostic = F,   # Agnostic determination of experimental vs reference group (based on the lower HR)
+                     plot_iteration = F, file_prefix = NA){
+  
+  require(dplyr)
+  require(tidyr)
+  
+  # Evaluate input
+  stat_test <- match.arg(stat_test)
+  
+  # Just need a data input, and run it 4 times
+  #@@@@ WE NOW HAVE 4 OPTIONS (2x2)
+  # 1) Re-designate the best responder  (longest time)  from experimental to control group
+  # 2) Re-designate the worst responder (shortest time) from control to experimental group
+  # 3) Flip that responder, 4) Clone that responder
+    
+  # Create list to store SIFI
+  mega_sifi <- vector("list", 4)
+  names(mega_sifi) <- expand.grid(operation = c("flip","clone"), direction = c("best","worst")) %>%
+    arrange(operation) %>%
+    unite("strategy", 1:2, remove = T) %>% pull(strategy) 
+  
+  # Strategy ID
+  strtgy <- 1
+  
+  # We run SIFI using the four different strategies
+  for(op in c("flip","clone")){
+    for(dr in c("best","worst")){
+      mega_sifi[paste0(op, "_", dr)] <- sifi(sv_data = sv_data2, treatment_arm = treatment_arm,
+                                             direction = dr, operation = op
+                                             cols = cols, stat_test = stat_test,
+                                             agnostic = agnostic,   # Agnostic determination of experimental vs reference group (based on the lower HR)
+                                             plot_iteration = plot_iteration,
+                                             file_iteration = ifelse(plot_iteration, yes = paste0(file_prefix, "strategy", strtgy, "_", paste0(op, "_", dr), ".pdf"), no = NA))
+      strtgy <- strtgy + 1
+    }
+  }
+  
+  return(mega_sifi)
 }
