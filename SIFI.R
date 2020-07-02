@@ -1,20 +1,21 @@
-# We can use the 'myeloid' and 'retinopathy' dataset from the 'survival' package
-if(F){
-  sifi(myeloid[, c("futime","death","trt")], plot_iteration = T, file_iteration = "myeloid_sifi.pdf")
-  sifi_all(myeloid[ , c("futime","death","trt")], plot_iteration = T, file_prefix = "myeloid_sifi")
-  # And the 'retinopathy' dataset also from the 'survival' package
-  sifi(retinopathy[ , c("futime","status","laser")], treatment_arm = "argon", plot_iteration = T, file_iteration = "retinopathy_sifi_argon.pdf")
-  sifi(retinopathy[ , c("futime","status","laser")], treatment_arm = "xenon", plot_iteration = T, file_iteration = "retinopathy_sifi_xenon.pdf")
-  sifi(retinopathy[ , c("futime","status","laser")], plot_iteration = T, file_iteration = "retinopathy_sifi_agnostic.pdf")
-  sifi_all(retinopathy[ , c("futime","status","laser")], plot_iteration = T, file_prefix = "retinopathy_sifi")
-}
+##################################################
+# This is the code to calculate the SIFI using the
+# 'myeloid' and 'retinopathy' sample datasets from the 'survival' package
+# sifi(myeloid[, c("futime","death","trt")], plot_iteration = T, file_iteration = "myeloid_sifi.pdf")    # Default SIFI strategy
+# sifi_all(myeloid[ , c("futime","death","trt")], plot_iteration = T, file_prefix = "myeloid_sifi")      # All SIFI strategies
+# sifi(retinopathy[ , c("futime","status","laser")], treatment_arm = "argon", plot_iteration = T, file_iteration = "retinopathy_sifi_argon.pdf")    # Default strategy, define experimental arm
+# sifi(retinopathy[ , c("futime","status","laser")], treatment_arm = "xenon", plot_iteration = T, file_iteration = "retinopathy_sifi_xenon.pdf")    # Default strategy, define experimental arm
+# sifi(retinopathy[ , c("futime","status","laser")], plot_iteration = T, file_iteration = "retinopathy_sifi_agnostic.pdf")    # Default strategy, without defining experimental arm ('agnostic')
+# sifi_all(retinopathy[ , c("futime","status","laser")], plot_iteration = T, file_prefix = "retinopathy_sifi")    # All SIFI strategies
 
-
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+##################################################
+# sifi function
+##################################################
 sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time, (2) event, (3) arm
                  operation = c("flip","clone"),  # Flip or clone the best/worst responder
                  direction = c("best","worst"),  # Use the best responder or the worst responder
-                 cols = c("#0754A0","#F12A29"), stat_test = c("logrank","coxph"),
+                 cols = c("#0754A0","#F12A29"),  # color of KM curves
+                 stat_test = c("logrank","coxph"),  # test used to calculate p-value in each iteration
                  agnostic = F,   # Agnostic determination of experimental vs reference group (based on the lower HR)
                  plot_iteration = F, file_iteration = NA){
   
@@ -178,19 +179,21 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time,
     #@@@@@@@@@@ KEEP IN MIND THAT IF WE CLONE A *CENSORED* INDIVIDUAL THE HR MAY NOT CHANGE AND WE WILL GET STUCK IN A LOOP
     #@@@@@@@@@@ THIS IS A SAFETY MECHANISM FOR THESE EXTREME CASES OR WHERE WE CAN'T REACH NON-SIGNIFICANCE...
     if(count > min(n_arms)){
-      if(plot_iteration & !is.na(file_iteration)) dev.off()  # Shut down device we have a filename
+      if(plot_iteration & !is.na(file_iteration)) dev.off()  # Shut down device if we have a filename
       return(NA)
     }
   }
   
 }
 
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+##################################################
+# negative sifi function, called by 'sifi()'
+##################################################
 neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time, (2) event, (3) arm
                      operation = c("flip","clone"),  # Flip or clone the best/worst responder
                      direction = c("best","worst"),  # Use the best responder or the worst responder
-                     cols = c("#0754A0","#F12A29"),
-                     stat_test = c("logrank","coxph"),
+                     cols = c("#0754A0","#F12A29"),  # color of KM curves
+                     stat_test = c("logrank","coxph"),  # test used to calculate p-value in each iteration
                      agnostic = F,   # Agnostic determination of experimental vs reference group (based on the lower HR)
                      plot_iteration = F, file_iteration = NA){
   
@@ -351,10 +354,12 @@ neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) t
   
 }
 
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+##################################################
+# calculate all sifi strategies together
+##################################################
 sifi_all <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time, (2) event, (3) arm
-                     cols = c("#0754A0","#F12A29"),
-                     stat_test = c("logrank","coxph"),
+                     cols = c("#0754A0","#F12A29"),  # color of KM curves
+                     stat_test = c("logrank","coxph"),  # test used to calculate p-value in each iteration
                      agnostic = F,   # Agnostic determination of experimental vs reference group (based on the lower HR)
                      plot_iteration = F, file_prefix = NA){
   
