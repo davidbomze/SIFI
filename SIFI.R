@@ -1,16 +1,17 @@
-##################################################
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # This is the code to calculate the SIFI using the
 # 'myeloid' and 'retinopathy' sample datasets from the 'survival' package
 # sifi(myeloid[, c("futime","death","trt")], plot_iteration = T, file_iteration = "myeloid_sifi_default.pdf")    # Default SIFI strategy
 # sifi_all(myeloid[ , c("futime","death","trt")], plot_iteration = T, file_prefix = "myeloid_sifi")      # All SIFI strategies
-# sifi(retinopathy[ , c("futime","status","laser")], treatment_arm = "argon", plot_iteration = T, file_iteration = "retinopathy_sifi_default_argon.pdf")    # Default strategy, define experimental arm
-# sifi(retinopathy[ , c("futime","status","laser")], treatment_arm = "xenon", plot_iteration = T, file_iteration = "retinopathy_sifi_default_xenon.pdf")    # Default strategy, define experimental arm
-# sifi(retinopathy[ , c("futime","status","laser")], plot_iteration = T, file_iteration = "retinopathy_sifi_default_agnostic.pdf")    # Default strategy, without defining experimental arm ('agnostic')
+# sifi(retinopathy[ , c("futime","status","laser")], treatment_arm = "argon", plot_iteration = T, file_iteration = "retinopathy_sifi_default_argon.pdf")    # Default SIFI strategy, define experimental arm
+# sifi(retinopathy[ , c("futime","status","laser")], treatment_arm = "xenon", plot_iteration = T, file_iteration = "retinopathy_sifi_default_xenon.pdf")    # Default SIFI strategy, define experimental arm
+# sifi(retinopathy[ , c("futime","status","laser")], plot_iteration = T, file_iteration = "retinopathy_sifi_default_agnostic.pdf")    # Default SIFI strategy, without defining experimental arm ('agnostic' approach will choose 'xenon' as experimental arm in this case)
 # sifi_all(retinopathy[ , c("futime","status","laser")], plot_iteration = T, file_prefix = "retinopathy_sifi")    # All SIFI strategies
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-##################################################
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # sifi function
-##################################################
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time, (2) event, (3) arm
                  operation = c("flip","clone"),  # Flip or clone the best/worst responder
                  direction = c("best","worst"),  # Use the best responder or the worst responder
@@ -186,9 +187,9 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time,
   
 }
 
-##################################################
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # negative sifi function, called by 'sifi()'
-##################################################
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time, (2) event, (3) arm
                      operation = c("flip","clone"),  # Flip or clone the best/worst responder
                      direction = c("best","worst"),  # Use the best responder or the worst responder
@@ -354,9 +355,9 @@ neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) t
   
 }
 
-##################################################
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # calculate all sifi strategies together
-##################################################
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 sifi_all <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time, (2) event, (3) arm
                      cols = c("#0754A0","#F12A29"),  # color of KM curves
                      stat_test = c("logrank","wald"),  # test used to calculate p-value in each iteration
