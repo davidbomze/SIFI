@@ -5,7 +5,7 @@ library(survival)
 source("../SIFI.R")
 
 # Example 1: 'myeloid' dataset
-sifi(myeloid[, c("futime","death","trt")], plot_iteration = T, file_iteration = "myeloid_sifi_default.pdf")    # Default SIFI strategy
+sifi(myeloid[ , c("futime","death","trt")], plot_iteration = T, file_iteration = "myeloid_sifi_default.pdf")    # Default SIFI strategy
 sifi_all(myeloid[ , c("futime","death","trt")], plot_iteration = T, file_prefix = "myeloid_sifi")      # All SIFI strategies
 
 # Example 2: 'retinopathy' dataset
