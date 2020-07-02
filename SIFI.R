@@ -1,5 +1,5 @@
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-# This is the coded used to calculate SIFI
+# This is the code used to calculate SIFI
 # For specific examples, see 'figures' folder
 # Author: David Bomze, 2020
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
