@@ -15,7 +15,7 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time,
                  operation = c("flip","clone"),  # Flip or clone the best/worst responder
                  direction = c("best","worst"),  # Use the best responder or the worst responder
                  cols = c("#0754A0","#F12A29"),  # color of KM curves
-                 stat_test = c("logrank","coxph"),  # test used to calculate p-value in each iteration
+                 stat_test = c("logrank","wald"),  # test used to calculate p-value in each iteration
                  agnostic = F,   # Agnostic determination of experimental vs reference group (based on the lower HR)
                  plot_iteration = F, file_iteration = NA){
   
@@ -59,18 +59,18 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time,
   # Initialize while loop
   while(flag){
     
-    # Option A: calculate the COXPH p-value
-    if(stat_test == "coxph"){
-      cxp <- coxph(Surv(time, event, type = "right") ~ arm, data = sv_data)
-      pval <- summary(cxp)$coefficients[5]
-    }
-    
-    # Option B: Calculate log-rank
+    # Option A: Calculate p-value of log-rank test (default)
     if(stat_test == "logrank"){
       sdf <- survdiff(Surv(time, event, type = "right") ~ arm, data = sv_data)
       pval <- 1 - pchisq(sdf$chisq, length(sdf$n) - 1)  # Log-rank p-value directly from survdiff
     }
     
+    # Option B: Calculate p-value of Wald's test
+    if(stat_test == "wald"){
+      cxp <- coxph(Surv(time, event, type = "right") ~ arm, data = sv_data)
+      pval <- summary(cxp)$coefficients[5]
+    }
+     
     #@@@@@@@@@@ EXTREME CASE (negative SIFI), if in the first iteration the p-val is insignificant
     # calculate the negative SIFI, i.e. try to get it from non-significant to significant
     if(count == 0 & pval > 0.05){
@@ -193,7 +193,7 @@ neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) t
                      operation = c("flip","clone"),  # Flip or clone the best/worst responder
                      direction = c("best","worst"),  # Use the best responder or the worst responder
                      cols = c("#0754A0","#F12A29"),  # color of KM curves
-                     stat_test = c("logrank","coxph"),  # test used to calculate p-value in each iteration
+                     stat_test = c("logrank","wald"),  # test used to calculate p-value in each iteration
                      agnostic = F,   # Agnostic determination of experimental vs reference group (based on the lower HR)
                      plot_iteration = F, file_iteration = NA){
   
@@ -237,14 +237,14 @@ neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) t
   # Initialize while loop
   while(flag){
     
-    # Option A: Calculate log-rank
+    # Option A: Calculate p-value of log-rank test (default)
     if(stat_test == "logrank"){
       sdf <- survdiff(Surv(time, event, type = "right") ~ arm, data = sv_data)
       pval <- 1 - pchisq(sdf$chisq, length(sdf$n) - 1)  # Log-rank p-value directly from survdiff
     }
     
-    # Option B: calculate the COXPH p-value
-    if(stat_test == "coxph"){
+    # Option B: Calculate p-value of Wald's test
+    if(stat_test == "wald"){
       cxp <- coxph(Surv(time, event, type = "right") ~ arm, data = sv_data)
       pval <- summary(cxp)$coefficients[5]
     }
@@ -359,7 +359,7 @@ neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) t
 ##################################################
 sifi_all <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time, (2) event, (3) arm
                      cols = c("#0754A0","#F12A29"),  # color of KM curves
-                     stat_test = c("logrank","coxph"),  # test used to calculate p-value in each iteration
+                     stat_test = c("logrank","wald"),  # test used to calculate p-value in each iteration
                      agnostic = F,   # Agnostic determination of experimental vs reference group (based on the lower HR)
                      plot_iteration = F, file_prefix = NA){
   
