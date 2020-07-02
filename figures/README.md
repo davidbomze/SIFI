@@ -9,3 +9,5 @@ sifi(retinopathy[ , c("futime","status","laser")], treatment_arm = "xenon", plot
 sifi(retinopathy[ , c("futime","status","laser")], plot_iteration = T, file_iteration = "retinopathy_sifi_default_agnostic.pdf")    # Default SIFI strategy, without defining experimental arm ('agnostically' choose 'xenon' as experimental in this case)
 sifi_all(retinopathy[ , c("futime","status","laser")], plot_iteration = T, file_prefix = "retinopathy_sifi")    # All SIFI strategies
 ```
+
+The figures generated can be found in this folder
