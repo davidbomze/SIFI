@@ -157,7 +157,7 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time,
         jd <- c(responder$time, s$surv[paste0("arm=", treatment_arm) == s$strata])
       }
       
-      # Add the point of the responder
+      # Add the point of the responder (event/censored in parentheses)
       points(sr[1], sr[2], type = "b", pch = 19, col = "green4", cex = 1.5)
       text(sr[1], sr[2]+0.05, adj = c(0.5,0), cex = 1.0, col = "green4",
            label = paste0(ifelse(direction == "best", "Best", "Worst"),"\nResponder", " (", responder$event, ")"))
@@ -325,7 +325,7 @@ neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) t
         jd <- c(responder$time, s$surv[paste0("arm=", control_arm) == s$strata])  # same...
       }
       
-      # Add the point of the responder
+      # Add the point of the responder (event/censored in parentheses)
       points(sr[1], sr[2], type = "b", pch = 19, col = "green4", cex = 1.5)
       text(sr[1], sr[2]+0.05, adj = c(0.5,0), cex = 1.0, col = "green4",
            label = paste0(ifelse(direction == "best", "Best", "Worst"),"\nResponder", " (", responder$event, ")"))
