@@ -138,11 +138,11 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time,
     }
     
     # Two options:
-    # (1) Re-designate BEST responder from the experimental to the control group
+    # (1) Re-designate BEST responder from the experimental to the control group (either event or censored)
     if(direction == "best") responder <- sv_data %>% filter(arm == treatment_arm) %>% arrange(time) %>% tail(1)
     
-    # (2) Re-desginate WORST responder from the control group to the experimental group
-    if(direction == "worst") responder <- sv_data %>% filter(arm != treatment_arm) %>% arrange(time) %>% head(1)
+    # (2) Re-desginate WORST responder from the control group to the experimental group (must be event)
+    if(direction == "worst") responder <- sv_data %>% filter(arm != treatment_arm & event == 1) %>% arrange(time) %>% head(1)
     
     if(plot_iteration){
       # Calculate time of new responder
@@ -306,11 +306,11 @@ neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) t
     control_arm <- setdiff(levels(sv_data$arm) , treatment_arm)
     
     # Two options:
-    # (1) Re-designate BEST responder from the CONTROL to the EXPERIMENT group (i.e. the mirror of positive SIFI)
+    # (1) Re-designate BEST responder from the CONTROL to the EXPERIMENT group (i.e. the mirror of positive SIFI) (either event or censored)
     if(direction == "best") responder <- sv_data %>% filter(arm == control_arm) %>% arrange(time) %>% tail(1)
     
-    # (2) Re-desginate WORST responder from the EXPERIMENTAL group to the CONTROL group (i.e. the mirror of positive SIFI)
-    if(direction == "worst") responder <- sv_data %>% filter(arm != control_arm) %>% arrange(time) %>% head(1)
+    # (2) Re-desginate WORST responder from the EXPERIMENTAL group to the CONTROL group (i.e. the mirror of positive SIFI) (must be event)
+    if(direction == "worst") responder <- sv_data %>% filter(arm != control_arm & event == 1) %>% arrange(time) %>% head(1)
     
     if(plot_iteration){
       # Calculate time of new responder
