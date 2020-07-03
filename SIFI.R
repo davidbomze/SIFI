@@ -7,7 +7,7 @@
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # sifi function
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time, (2) event, (3) arm
+sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain three columns: (1) time, (2) event, (3) arm
                  operation = c("flip","clone"),  # Flip or clone the best/worst responder
                  direction = c("best","worst"),  # Use the best responder or the worst responder
                  cols = c("#0754A0","#F12A29"),  # color of KM curves
@@ -185,7 +185,7 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time,
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # negative sifi function, called by 'sifi()'
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time, (2) event, (3) arm
+neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain three columns: (1) time, (2) event, (3) arm
                      operation = c("flip","clone"),  # Flip or clone the best/worst responder
                      direction = c("best","worst"),  # Use the best responder or the worst responder
                      cols = c("#0754A0","#F12A29"),  # color of KM curves
@@ -353,7 +353,7 @@ neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) t
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # calculate all sifi strategies together
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-sifi_all <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should be (1) time, (2) event, (3) arm
+sifi_all <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain three columns: (1) time, (2) event, (3) arm
                      cols = c("#0754A0","#F12A29"),  # color of KM curves
                      stat_test = c("logrank","wald"),  # test used to calculate p-value in each iteration
                      agnostic = F,   # Agnostic determination of experimental vs reference group (based on the lower HR)
