@@ -298,7 +298,7 @@ neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain 
       count <- count - 1   # Negative
     }
     
-    # WE NOW DO THE SAME APPROACH as positive SIFI, but in a mirror way
+    # WE NOW MIRROR THE SAME APPROACH as positive SIFI
     control_arm <- setdiff(levels(sv_data$arm) , treatment_arm)
     
     # Two options:
