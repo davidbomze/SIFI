@@ -17,7 +17,6 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain thre
   
   require(dplyr)
   require(survival)
-  require(stringi)
   
   # Evaluate input
   operation <- match.arg(operation)
@@ -67,7 +66,7 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain thre
       pval <- summary(cxp)$coefficients[5]
     }
      
-    #@@@@@@@@@@ EXTREME CASE (negative SIFI), if in the first iteration the p-val is insignificant
+    #@@@@@@@@@@ NEGATIVE SIFI, if in the first iteration the p-val is insignificant
     # calculate the negative SIFI, i.e. try to get it from non-significant to significant
     if(count == 0 & pval > 0.05){
       # Dump parameters in the same order
@@ -82,8 +81,8 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain thre
     
     if(plot_iteration){
       # Build survival model, run COXPH, and calculate HR
-      sft <- survfit(Surv(time = time, event = event, type = "right") ~ arm, data = sv_data)
-      cxp <- coxph(Surv(time = time, event = event, type = "right") ~ arm, data = sv_data)
+      sft <- survfit(Surv(time, event, type = "right") ~ arm, data = sv_data)
+      cxp <- coxph(Surv(time, event, type = "right") ~ arm, data = sv_data)
       hr <- summary(cxp)$conf.int[c(1,3,4)]
       
       # Create labels
@@ -113,7 +112,7 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain thre
       par(xpd = TRUE)   # Prevents clipping
       
       text(bounds[2], bounds[4]-0.05, adj = c(1,1), cex = 1.0,
-           label = paste0(stri_trans_totitle(paste0(operation, " ", direction, " responder")),
+           label = paste0(stringi::stri_trans_totitle(paste0(operation, " ", direction, " responder")),
                           ifelse(direction == "best", yes ="\nExperimental --> Control", no = "\nControl --> Experimental")))
       
       # If there is already a best/worst responder that was flipped/cloned (from previous iteration), then plot it
@@ -195,7 +194,6 @@ neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain 
   
   require(dplyr)
   require(survival)
-  require(stringi)
   
   # Evaluate input
   operation <- match.arg(operation)
@@ -247,8 +245,8 @@ neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain 
     
     if(plot_iteration){
       # Build survival model, run COXPH, and calculate HR
-      sft <- survfit(Surv(time = time, event = event, type = "right") ~ arm, data = sv_data)
-      cxp <- coxph(Surv(time = time, event = event, type = "right") ~ arm, data = sv_data)
+      sft <- survfit(Surv(time, event, type = "right") ~ arm, data = sv_data)
+      cxp <- coxph(Surv(time, event, type = "right") ~ arm, data = sv_data)
       hr <- summary(cxp)$conf.int[c(1,3,4)]
       
       # Create labels
@@ -278,7 +276,7 @@ neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain 
       par(xpd = TRUE)   # Prevents clipping
       
       text(bounds[2], bounds[4]-0.05, adj = c(1,1), cex = 1.0,
-           label = paste0(stri_trans_totitle(paste0(operation, " ", direction, " responder")),
+           label = paste0(stringi::stri_trans_totitle(paste0(operation, " ", direction, " responder")),
                           ifelse(direction == "best", yes ="\nExperimental --> Control", no = "\nControl --> Experimental")))
       
       # If there is already a best/worst responder that was flipped/cloned (from previous iteration), then plot it
@@ -360,7 +358,6 @@ sifi_all <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain 
                      plot_iteration = F, file_prefix = NA){
   
   require(dplyr)
-  require(tidyr)
   
   # Evaluate input
   stat_test <- match.arg(stat_test)
@@ -376,7 +373,7 @@ sifi_all <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain 
   mega_sifi <- vector("list", 4)
   names(mega_sifi) <- expand.grid(operation = c("flip","clone"), direction = c("best","worst")) %>%
     arrange(operation) %>%
-    unite("strategy", 1:2, remove = T) %>% pull(strategy) 
+    tidyr::unite("strategy", 1:2, remove = T) %>% pull(strategy) 
   
   # Strategy ID
   strtgy <- 1
