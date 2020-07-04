@@ -69,12 +69,12 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain thre
     #@@@@@@@@@@ NEGATIVE SIFI, if in the first iteration the p-val is insignificant
     # calculate the negative SIFI, i.e. try to get it from non-significant to significant
     if(count == 0 & pval > 0.05){
-      # Dump parameters in the same order
-      count_neg <- neg_sifi(sv_data = sv_data[ , 1:3], treatment_arm,
-                            operation, direction,
-                            cols = cols, stat_test,
-                            agnostic,
-                            plot_iteration, file_iteration)
+      # Dump parameters
+      count_neg <- neg_sifi(sv_data = sv_data[ , 1:3], treatment_arm = treatment_arm,
+                            operation = operation, direction = direction,
+                            cols = cols, stat_test = stat_test,
+                            agnostic = agnostic,
+                            plot_iteration = plot_iteration, file_iteration = file_iteration)
       return(count_neg)
     }
     #@@@@@@@@@@
