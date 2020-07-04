@@ -5,7 +5,7 @@
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-# sifi function
+# Basic SIFI function
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain three columns: (1) time, (2) event, (3) arm
                  operation = c("flip","clone"),  # Flip or clone the best/worst responder
@@ -124,7 +124,7 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain thre
       
     }
     
-    # If we reached non-significance, then we're done, return SIFI, else we re-deisgnate/add clone
+    # If we reached NON-significance, then we're done and return SIFI, else re-deisgnate/add clone
     if(pval > 0.05){
       if(plot_iteration & !is.na(file_iteration)) dev.off()  # Shut down device we have a filename
       return(count)
@@ -182,7 +182,7 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain thre
 }
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-# negative sifi function, called by 'sifi()'
+# Negative SIFI function, called from 'sifi()'
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain three columns: (1) time, (2) event, (3) arm
                      operation = c("flip","clone"),  # Flip or clone the best/worst responder
@@ -270,9 +270,9 @@ neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain 
       bounds <- par("usr")
       
       # Plot legend
-      legend("bottomleft", legend = c("Experimental","Control"), col = rev(cols), bty = "n", lwd = 1.5)   # Default is Lancet style rev(c("#0754A0","#F12A29"))
+      legend("bottomleft", legend = c("Experimental","Control"), col = rev(cols), bty = "n", lwd = 1.5)
       
-      # Add strategy (operation and direction)
+      # Add strategy (operation-direction)
       par(xpd = TRUE)   # Prevents clipping
       
       text(bounds[2], bounds[4]-0.05, adj = c(1,1), cex = 1.0,
@@ -288,7 +288,7 @@ neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain 
       
     }
     
-    # If we reached YES-significance, then we're done, otherwise re-designate/add clone (mirror of positive SIFI)
+    # If we reached YES-significance, then we're done and return SIFI, else re-designate/add clone (mirror of positive SIFI)
     if(pval < 0.05){
       if(plot_iteration & !is.na(file_iteration)) dev.off()  # Shut down device we have a filename
       return(count)
@@ -349,7 +349,7 @@ neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain 
 }
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-# calculate all sifi strategies together
+# Calculate all SIFI strategies in one run
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 sifi_all <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain three columns: (1) time, (2) event, (3) arm
                      cols = c("#0754A0","#F12A29"),  # color of KM curves
@@ -370,8 +370,8 @@ sifi_all <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain 
   #@@@@@@@@@@
   
   # Create list to store SIFI
-  mega_sifi <- vector("list", 4)
-  names(mega_sifi) <- expand.grid(operation = c("flip","clone"), direction = c("best","worst")) %>%
+  sifi_all4 <- vector("list", 4)
+  names(sifi_all4) <- expand.grid(operation = c("flip","clone"), direction = c("best","worst")) %>%
     arrange(operation) %>%
     tidyr::unite("strategy", 1:2, remove = T) %>% pull(strategy) 
   
@@ -381,7 +381,7 @@ sifi_all <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain 
   # We run SIFI using the four different strategies
   for(op in c("flip","clone")){
     for(dr in c("best","worst")){
-      mega_sifi[paste0(op, "_", dr)] <- sifi(sv_data = sv_data, treatment_arm = treatment_arm,
+      sifi_all4[paste0(op, "_", dr)] <- sifi(sv_data = sv_data, treatment_arm = treatment_arm,
                                              direction = dr, operation = op,
                                              cols = cols, stat_test = stat_test,
                                              agnostic = agnostic,   # Agnostic determination of experimental vs reference group (based on the lower HR)
@@ -391,5 +391,5 @@ sifi_all <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain 
     }
   }
   
-  return(mega_sifi)
+  return(sifi_all4)
 }
