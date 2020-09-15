@@ -1,6 +1,6 @@
-# Survival-inferred fragility index (SIFI)
+# Survival-Inferred Fragility Index (SIFI)
 
-The survival-inferred fragility index (SIFI) is a simple and intuitive fragility measure for survival analysis, based on real-life conditions, that captures the vulnerability of the data.
+The Survival-Inferred Fragility Index (SIFI) is a simple and intuitive fragility measure for survival analysis, based on real-life conditions, that captures the vulnerability of the data.
 
 The SIFI is defined as the minimum number of reassignments of the best survivors from the experimental to the control arm resulting in loss of statistical significance.
 
