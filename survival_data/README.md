@@ -1,4 +1,7 @@
-These are the survival data for the ITT and the subgroup populations.  
+These are the survival data for the ITT and the subgroup populations = folders 'itt' and 'subgroup'.  
+There are also bonus data in 'hcc' and 'delpaggio' folder, relevant to other publications.
+
+
 Each file has three colums = time, event, and arm.  
 Each filename indicates name of the study, the publication, and the figure from which data was reconstructed.
 
