@@ -1,4 +1,4 @@
-These are the survival data for the ITT and the subgroup populations  
+These are the survival data for the ITT population  
 Each file has three colums = time, event, and arm  
 Each filename indicates name of the study, the publication, and the figure from which data was reconstructed
 
