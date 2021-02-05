@@ -29,8 +29,8 @@ sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain thre
   sv_data$id <- 1:nrow(sv_data)
   count <- 0 ; flag <- T
   
-  # If the treatment arm wasn't defined or we use the agnostic approach,
-  # we assign the group that shows benefit (HR < 1) as the experimental group regardless of signifiance
+  # If the treatment arm wasn't defined, we use the agnostic approach,
+  # by assigning the group that shows benefit (HR < 1) as the experimental group regardless of signifiance
   if((length(treatment_arm) == 0) | agnostic){
     sv_cox <- coxph(Surv(time, event, type = "right") ~ arm, data = sv_data)
     treatment_arm <- ifelse(sv_cox$coefficients < 0, yes = levels(sv_data$arm)[2], no = levels(sv_data$arm)[1])
@@ -206,8 +206,8 @@ neg_sifi <- function(sv_data, treatment_arm = NULL,  # 'sv_data' should contain 
   sv_data$id <- 1:nrow(sv_data)
   count <- 0 ; flag <- T
   
-  # If the treatment arm wasn't defined or we use the agnostic approach,
-  # we assign the group that shows benefit (HR < 1) as the experimental group regardless of signifiance
+  # If the treatment arm wasn't defined, we use the agnostic approach,
+  # by assigning the group that shows benefit (HR < 1) as the experimental group regardless of signifiance
   if((length(treatment_arm) == 0) | agnostic){
     sv_cox <- coxph(Surv(time, event, type = "right") ~ arm, data = sv_data)
     treatment_arm <- ifelse(sv_cox$coefficients < 0, yes = levels(sv_data$arm)[2], no = levels(sv_data$arm)[1])
